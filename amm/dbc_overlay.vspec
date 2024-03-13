@@ -1,0 +1,85 @@
+# VSS example for Gothenburg AMM
+
+# First adding a generic one
+
+#Vehicle.Chassis.Axle:
+#  instances:
+#    - Row[1,2]
+#  type: branch
+#  description: Axle signals
+
+#Vehicle.Chassis.Axle.Wheel:
+#  instances: ["Left","Right"]
+#  type: branch
+#  description: Wheel signals for axle
+
+
+#Vehicle.Chassis.Axle.Wheel.Brake:
+#  type: branch
+#  description: Brake signals for wheel
+
+#Vehicle.Chassis.Axle.Wheel.Brake.Temperature:
+#  datatype: float
+#  type: sensor
+#  unit: celsius
+#  description: Brake temperature.
+
+
+# Specify mapping
+# DBC definition (no scaling/offset, minimum 0 km/h, maximum 510 km/h)
+# Unit km/h is assumed in this case as not specified in DBC file
+# SG_ DI_uiSpeed : 24|9@1+ (1,0) [0|510] ""  Receiver
+
+Vehicle.Speed:
+  type: sensor
+  datatype: float
+  dbc2vss:
+    signal: DI_uiSpeed
+    interval_ms: 100
+
+# Temperature
+# DBC definition, 10 bits (0-1023), offset -40
+# BO_ 1022 ID3FEbrakeTemps: 5 VehicleBus
+# SG_ BrakeTempFL3FE : 0|10@1+ (1,-40) [0|0] "C"  Receiver
+# SG_ BrakeTempFR3FE : 10|10@1+ (1,-40) [0|0] "C"  Receiver
+# SG_ BrakeTempRL3FE : 20|10@1+ (1,-40) [0|0] "C"  Receiver
+# SG_ BrakeTempRR3FE : 30|10@1+ (1,-40) [0|0] "C"  Receiver
+Vehicle.Chassis.Axle.Row1.Wheel.Left.Brake.Temperature:
+  datatype: float
+  type: sensor
+  description: Brake Temperature FL
+  dbc2vss:
+    interval_ms: 1000
+    signal: BrakeTempFL3FE
+    transform:
+      math: "floor(x-40)"
+
+Vehicle.Chassis.Axle.Row1.Wheel.Right.Brake.Temperature:
+  datatype: float
+  type: sensor
+  description: Brake Temperature FR
+  dbc2vss:
+    interval_ms: 1000
+    signal: BrakeTempFR3FE
+    transform:
+      math: "floor(x-40)"
+
+Vehicle.Chassis.Axle.Row2.Wheel.Left.Brake.Temperature:
+  datatype: float
+  type: sensor
+  description: Brake Temperature RL
+  dbc2vss:
+    interval_ms: 1000
+    signal: BrakeTempRL3FE
+    transform:
+      math: "floor(x-40)"
+
+Vehicle.Chassis.Axle.Row2.Wheel.Right.Brake.Temperature:
+  datatype: float
+  type: sensor
+  description: Brake Temperature RR
+  dbc2vss:
+    interval_ms: 1000
+    signal: BrakeTempRR3FE
+    transform:
+      math: "floor(x-40)"
